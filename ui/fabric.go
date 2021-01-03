@@ -22,33 +22,25 @@ func getUI(n string) UI {
 }
 
 type Fabric struct {
-	uis map[string]func(string) UI
+	uis    []string
+	uiFunc func(string) UI
 }
 
 func NewFabric() *Fabric {
 	f := &Fabric{
-		uis: make(map[string]func(string) UI, 0),
+		uis: []string{
+			"gui",
+			"console",
+		},
+		uiFunc: getUI,
 	}
-
-	f.Add(Console, getUI)
-	f.Add(Gui, getUI)
-
 	return f
 }
 
 func (f *Fabric) Get(ui string) UI {
-	return f.uis[ui](ui)
-}
-
-func (f *Fabric) Add(n string, fn func(string) UI) {
-	f.uis[n] = fn
+	return f.uiFunc(ui)
 }
 
 func (f *Fabric) List() []string {
-	l := make([]string, 0)
-	for i := range f.uis {
-		l = append(l, i)
-	}
-
-	return l
+	return f.uis
 }
