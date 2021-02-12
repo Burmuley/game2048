@@ -6,7 +6,8 @@ import (
 )
 
 type Game2048 struct {
-	field Field
+	field    Field
+	prevMove int8
 }
 
 func NewGame2048() *Game2048 {
@@ -38,6 +39,34 @@ func (g *Game2048) Init(n int) Engine {
 }
 
 func (g *Game2048) Move(m Move) Field {
-	g.field = m(g.field)
+	var cMove int8
+	g.field, cMove = m(g.field)
+
+	if g.prevMove != cMove {
+		g.addRandomTwos()
+	}
+
+	g.prevMove = cMove
 	return g.field
+}
+
+func (g *Game2048) addRandomTwos() {
+	rcLen := len(g.field) - 1
+
+	for r := range g.field {
+		cTime := time.Now()
+		rand.Seed(cTime.UnixNano())
+		//rndRow := rand.Intn(rcLen)
+
+		for range g.field[r] {
+			rndCol := rand.Intn(rcLen)
+
+			if g.field[r][rndCol] == EmptyCell {
+				g.field[r][rndCol] = 2
+				return
+			}
+		}
+	}
+
+	panic("GAME OVER!")
 }

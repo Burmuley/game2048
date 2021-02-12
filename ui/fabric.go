@@ -29,8 +29,8 @@ type Fabric struct {
 func NewFabric() *Fabric {
 	f := &Fabric{
 		uis: []string{
-			"gui",
-			"console",
+			Gui,
+			Console,
 		},
 		uiFunc: getUI,
 	}

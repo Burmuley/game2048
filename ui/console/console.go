@@ -1,6 +1,9 @@
 package console
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/Burmuley/game2048/engine"
 )
 
@@ -18,7 +21,8 @@ func (c *Console) Name() string {
 }
 
 func (c *Console) Run() {
-	panic("implement me")
+	fmt.Println("NOT IMPLEMENTED YET")
+	os.Exit(1)
 }
 
 func New() *Console {

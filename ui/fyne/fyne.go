@@ -1,7 +1,15 @@
 package fyne
 
 import (
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"github.com/Burmuley/game2048/engine"
+)
+
+const (
+	cellSize int = 100
 )
 
 type FyneUI struct {
@@ -18,11 +26,49 @@ func (f *FyneUI) Name() string {
 }
 
 func (f *FyneUI) Run() {
-	panic("implement me")
+	uiApp := app.New()
+	uiWindow := uiApp.NewWindow("Game 2048")
+	fSize := len(f.game.Field())
+
+	gameLayout := layout.NewGridLayout(len(f.game.Field()))
+	gameContainer := container.New(gameLayout)
+
+	scoreLabel := NewGameScore("WOW", f.game, gameContainer, f)
+	scoreLabel.Resize(scoreLabel.MinSize())
+	scoreLabel.Alignment = fyne.TextAlignCenter
+
+	gridSize := fyne.NewSize(
+		float32(fSize*cellSize),
+		float32(fSize*cellSize),
+	)
+	wSize := fyne.Size{
+		Width:  gridSize.Width,
+		Height: gridSize.Height + scoreLabel.MinSize().Height,
+	}
+
+	wLayout := NewGameWindowLayout()
+	wContainer := container.New(wLayout)
+	wContainer.Add(scoreLabel)
+	wContainer.Add(gameContainer)
+	wContainer.Resize(wSize)
+	f.fillContainer(gameContainer)
+
+	uiWindow.Resize(wSize)
+	uiWindow.SetContent(wContainer)
+	uiWindow.ShowAndRun()
 }
 
 func New() *FyneUI {
 	return &FyneUI{
 		name: "Fyne",
+	}
+}
+
+func (f *FyneUI) fillContainer(cont *fyne.Container) {
+	for r := range f.game.Field() {
+		for c := range f.game.Field()[r] {
+			t := NewGameCell(f.game, [2]int{r, c})
+			cont.Add(t)
+		}
 	}
 }
