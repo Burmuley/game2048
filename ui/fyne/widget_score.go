@@ -1,6 +1,8 @@
 package fyne
 
 import (
+	"fmt"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
 	"github.com/Burmuley/game2048/engine"
@@ -27,18 +29,27 @@ func (g *GameScore) TypedRune(r rune) {
 }
 
 func (g *GameScore) TypedKey(event *fyne.KeyEvent) {
+	var err error
+	var res engine.MoveResult
+
 	switch event.Name {
 	case fyne.KeyRight:
-		g.game.Move(engine.M_RIGHT2048)
+		res, err = g.game.Move(engine.M_RIGHT2048)
 	case fyne.KeyLeft:
-		g.game.Move(engine.M_LEFT2048)
+		res, err = g.game.Move(engine.M_LEFT2048)
 	case fyne.KeyUp:
-		g.game.Move(engine.M_UP2048)
+		res, err = g.game.Move(engine.M_UP2048)
 	case fyne.KeyDown:
-		g.game.Move(engine.M_DOWN2048)
+		res, err = g.game.Move(engine.M_DOWN2048)
 	}
 
+	g.game.AddScore(res.Score())
+	if err != nil {
+		panic(fmt.Sprintf("GAME OVER! %s\n", err))
+	}
 	g.gameContainer.Refresh()
+	g.Text = fmt.Sprintf("%d", g.game.Score())
+	g.Refresh()
 }
 
 func NewGameScore(text string, game engine.Engine, gameContainer *fyne.Container, ui *FyneUI) *GameScore {

@@ -1,72 +1,150 @@
 package engine
 
 import (
+	"errors"
 	"math/rand"
 	"time"
 )
 
+type Game2048Result struct {
+	aligned FieldAlingment
+	changed bool
+	score   int
+}
+
+func NewGame2048Result(aligned FieldAlingment, changed bool, score int) *Game2048Result {
+	return &Game2048Result{aligned: aligned, changed: changed, score: score}
+}
+
+func (g Game2048Result) Aligned() FieldAlingment {
+	return g.aligned
+}
+
+func (g Game2048Result) Changed() bool {
+	return g.changed
+}
+
+func (g Game2048Result) Score() int {
+	return g.score
+}
+
 type Game2048 struct {
-	field    Field
-	prevMove int8
+	field Field
+	score int
 }
 
-func NewGame2048() *Game2048 {
-	return &Game2048{}
+func NewGame2048(size int) *Game2048 {
+	field := NewGame2048Field(size)
+	return &Game2048{
+		field: field,
+		score: 0,
+	}
 }
 
-func (g *Game2048) Field() Field {
-	return g.field
+func NewGame2048WithField(field Field) *Game2048 {
+	return &Game2048{
+		field: field,
+		score: 0,
+	}
 }
 
-func (g *Game2048) Init(n int) Engine {
-	// make a field of size n
-	g.field = make([][]int, n, n)
-	for i := range g.field {
-		g.field[i] = make([]int, n, n)
-		for k := range g.field[i] {
-			g.field[i][k] = EmptyCell
+func (g *Game2048) Field() [][]int {
+	return g.field.Get()
+}
+
+func (g *Game2048) Move(move Move) (MoveResult, error) {
+	var cMove MoveResult
+	cMove = move(g.field)
+
+	if !g.field.HasFreeCells() {
+		return cMove, errors.New("No more free cells left. Game over!")
+	}
+
+	if cMove.Changed() {
+		g.addRandomTwos(cMove.Aligned())
+	}
+
+	return cMove, nil
+}
+
+func (g *Game2048) AddScore(inc int) {
+	g.score += inc
+}
+
+func (g *Game2048) Score() int {
+	return g.score
+}
+
+func (g *Game2048) addRandomTwos(aligned FieldAlingment) {
+	field := g.field.Get()
+	fSize := (len(field) - 1) * 10
+	rndSize := len(field) * 100
+
+	for i := 0; i < fSize; i++ {
+		cTime := time.Now()
+		rand.Seed(cTime.UnixNano())
+		rndRow := int(rand.Intn(rndSize) / 100)
+		rndCol := int(rand.Intn(rndSize) / 100)
+
+		if field[rndRow][rndCol] == EmptyCell {
+			field[rndRow][rndCol] = Newcell
+			break
 		}
 	}
 
-	// fill field randomly
-	for k := 0; k < n/2; k++ {
-		cTime := time.Now()
-		rand.Seed(cTime.UnixNano())
-		g.field[rand.Intn(n)][rand.Intn(n)] = 2
-	}
-
-	return g
+	g.field.Set(field)
 }
 
-func (g *Game2048) Move(m Move) Field {
-	var cMove int8
-	g.field, cMove = m(g.field)
+// Field
+type Game2048Field struct {
+	aligned FieldAlingment
+	field   [][]int
+	changed bool
+}
 
-	if g.prevMove != cMove {
-		g.addRandomTwos()
-	}
-
-	g.prevMove = cMove
+func (g *Game2048Field) Get() [][]int {
 	return g.field
 }
 
-func (g *Game2048) addRandomTwos() {
-	rcLen := len(g.field) - 1
+func (g *Game2048Field) Set(f [][]int) {
+	g.field = f
+}
 
+func (g *Game2048Field) HasFreeCells() bool {
 	for r := range g.field {
-		cTime := time.Now()
-		rand.Seed(cTime.UnixNano())
-		//rndRow := rand.Intn(rcLen)
-
-		for range g.field[r] {
-			rndCol := rand.Intn(rcLen)
-
-			if g.field[r][rndCol] == EmptyCell {
-				g.field[r][rndCol] = 2
-				return
+		for _, c := range g.field[r] {
+			if c == EmptyCell {
+				return true
 			}
 		}
 	}
 
-	panic("GAME OVER!")
+	return false
+}
+
+func NewGame2048Field(size int) Field {
+	fieldInstance := Game2048Field{
+		aligned: FAL_NO,
+		changed: false,
+	}
+
+	field := make([][]int, size, size)
+
+	for i := range field {
+		field[i] = make([]int, size, size)
+		for k := range field[i] {
+			field[i][k] = EmptyCell
+		}
+	}
+
+	// fill field randomly
+	for k := 0; k < size/2; k++ {
+		cTime := time.Now()
+		rand.Seed(cTime.UnixNano())
+		field[rand.Intn(size)][rand.Intn(size)] = Newcell
+	}
+
+	fieldInstance.field = field
+
+	return &fieldInstance
 }

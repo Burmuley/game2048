@@ -2,18 +2,35 @@ package engine
 
 const (
 	EmptyCell int = 0
+	Newcell   int = 2
 )
 
-type Field [][]int
-type Move func(f Field) (Field, int8)
+const (
+	FAL_NO FieldAlingment = iota
+	FAL_LEFT
+	FAL_RIGHT
+	FAL_UP
+	FAL_DOWN
+)
 
-type Engine interface {
-	Init(n int) Engine
-	Move(m Move) Field
-	Field() Field
+type FieldAlingment int8
+type Move func(f Field) MoveResult
+
+type Field interface {
+	Get() [][]int
+	Set([][]int)
+	HasFreeCells() bool
 }
 
-type EngineField interface {
-	Get() Field
-	Set(Field)
+type Engine interface {
+	Move(m Move) (MoveResult, error)
+	Field() [][]int
+	AddScore(inc int)
+	Score() int
+}
+
+type MoveResult interface {
+	Aligned() FieldAlingment
+	Changed() bool
+	Score() int
 }
