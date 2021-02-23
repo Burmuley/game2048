@@ -1,19 +1,10 @@
 package engine
 
-import "fmt"
-
 var (
 	M_RIGHT2048 Move = Move2048Right
 	M_LEFT2048  Move = Move2048Left
 	M_UP2048    Move = Move2048Up
 	M_DOWN2048  Move = Move2048Down
-)
-
-const (
-	MOVE_LEFT int8 = iota
-	MOVE_RIGHT
-	MOVE_UP
-	MOVE_DOWN
 )
 
 func Move2048Right(field Field) MoveResult {
@@ -38,7 +29,6 @@ func Move2048Right(field Field) MoveResult {
 
 	// shift all cells to the right again
 	// to remove gaps after summing
-	//changes = append(changes, shiftRight(f))
 	shiftRight(f)
 	field.Set(f)
 	return NewGame2048Result(FAL_RIGHT, !cmpFields(startF, f), score)
@@ -216,13 +206,4 @@ func copyField(field [][]int) [][]int {
 	}
 
 	return cp
-}
-
-func printField(f [][]int) {
-	for _, r := range f {
-		for _, c := range r {
-			fmt.Printf("\t%d", c)
-		}
-		fmt.Println()
-	}
 }

@@ -33,7 +33,7 @@ func (f *FyneUI) Run() {
 	gameLayout := layout.NewGridLayout(len(f.game.Field()))
 	gameContainer := container.New(gameLayout)
 
-	scoreLabel := NewGameScore("WOW", f.game, gameContainer, f)
+	scoreLabel := NewGameScore("Score: 0", f.game, gameContainer, f)
 	scoreLabel.Resize(scoreLabel.MinSize())
 	scoreLabel.Alignment = fyne.TextAlignCenter
 
@@ -55,6 +55,7 @@ func (f *FyneUI) Run() {
 
 	uiWindow.Resize(wSize)
 	uiWindow.SetContent(wContainer)
+	uiWindow.Canvas().Focus(scoreLabel)
 	uiWindow.ShowAndRun()
 }
 

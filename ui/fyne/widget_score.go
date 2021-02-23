@@ -48,7 +48,7 @@ func (g *GameScore) TypedKey(event *fyne.KeyEvent) {
 		panic(fmt.Sprintf("GAME OVER! %s\n", err))
 	}
 	g.gameContainer.Refresh()
-	g.Text = fmt.Sprintf("%d", g.game.Score())
+	g.Text = fmt.Sprintf("Score: %d", g.game.Score())
 	g.Refresh()
 }
 
