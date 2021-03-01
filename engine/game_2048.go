@@ -57,7 +57,11 @@ func (g *Game2048) Move(move Move) (MoveResult, error) {
 	cMove = move(g.field)
 
 	if !g.field.HasFreeCells() {
-		return cMove, errors.New("No more free cells left. Game over!")
+		return cMove, errors.New("GAME OVER!")
+	}
+
+	if g.checkWin() {
+		return cMove, errors.New("IT'S A WIN!")
 	}
 
 	if cMove.Changed() {
@@ -93,6 +97,18 @@ func (g *Game2048) addRandomTwos(aligned FieldAlingment) {
 	}
 
 	g.field.Set(field)
+}
+
+func (g *Game2048) checkWin() bool {
+	for _, row := range g.field.Get() {
+		for cell := range row {
+			if cell == WinNumber {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 // Field

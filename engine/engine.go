@@ -3,6 +3,7 @@ package engine
 const (
 	EmptyCell int = 0
 	Newcell   int = 2
+	WinNumber int = 2048
 )
 
 const (

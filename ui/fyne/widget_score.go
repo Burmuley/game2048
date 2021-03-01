@@ -2,8 +2,11 @@ package fyne
 
 import (
 	"fmt"
+	"image/color"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	"github.com/Burmuley/game2048/engine"
 )
@@ -13,6 +16,7 @@ type GameScore struct {
 	game          engine.Engine
 	gameContainer *fyne.Container
 	ui            *FyneUI
+	uiWindow      fyne.Window
 	preKey        fyne.KeyName
 }
 
@@ -44,20 +48,30 @@ func (g *GameScore) TypedKey(event *fyne.KeyEvent) {
 	}
 
 	g.game.AddScore(res.Score())
+
 	if err != nil {
-		panic(fmt.Sprintf("GAME OVER! %s\n", err))
+		dlg := dialog.NewCustom("Message:", "Another shot!", canvas.NewText(fmt.Sprintf("%s", err), color.White), g.uiWindow)
+		dlg.SetOnClosed(func() {
+			g.game = engine.NewGame2048(4)
+			g.ui.game = g.game
+			g.ui.fillContainer(g.gameContainer)
+			g.Text = fmt.Sprintf("Score: %d", g.game.Score())
+		})
+		dlg.Show()
 	}
+
 	g.gameContainer.Refresh()
 	g.Text = fmt.Sprintf("Score: %d", g.game.Score())
 	g.Refresh()
 }
 
-func NewGameScore(text string, game engine.Engine, gameContainer *fyne.Container, ui *FyneUI) *GameScore {
+func NewGameScore(text string, game engine.Engine, gameContainer *fyne.Container, ui *FyneUI, win fyne.Window) *GameScore {
 	score := &GameScore{
 		Label:         widget.Label{Text: text},
 		game:          game,
 		gameContainer: gameContainer,
 		ui:            ui,
+		uiWindow:      win,
 	}
 	score.ExtendBaseWidget(score)
 	return score

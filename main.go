@@ -45,8 +45,6 @@ func main() {
 	}
 
 	eng = engine.NewGame2048(4)
-	//eng = eng.Init(4)
-
 	appUI := uiFabric.Get(cmdUIName)
 	appUI.SetGame(eng)
 	appUI.Run()

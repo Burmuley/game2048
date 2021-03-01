@@ -33,7 +33,7 @@ func (f *FyneUI) Run() {
 	gameLayout := layout.NewGridLayout(len(f.game.Field()))
 	gameContainer := container.New(gameLayout)
 
-	scoreLabel := NewGameScore("Score: 0", f.game, gameContainer, f)
+	scoreLabel := NewGameScore("Score: 0", f.game, gameContainer, f, uiWindow)
 	scoreLabel.Resize(scoreLabel.MinSize())
 	scoreLabel.Alignment = fyne.TextAlignCenter
 
@@ -66,6 +66,7 @@ func New() *FyneUI {
 }
 
 func (f *FyneUI) fillContainer(cont *fyne.Container) {
+	cont.Objects = make([]fyne.CanvasObject, 0, 0)
 	for r := range f.game.Field() {
 		for c := range f.game.Field()[r] {
 			t := NewGameCell(f.game, [2]int{r, c})
